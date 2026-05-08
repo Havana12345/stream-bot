@@ -180,22 +180,6 @@ def home():
 # ===== ФОНОВЫЙ ПОТОК =====
 threading.Thread(target=check_stream, daemon=True).start()
 
-
-# ===== ТЕСТ CUSTOM EMOJI =====
-@app.route("/test")
-def test():
-
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-
-    data = {
-        "chat_id": CHAT_ID,
-        "text": "ТЕСТ БЕЗ CUSTOM EMOJI"
-    }
-
-    r = requests.post(url, json=data)
-
-    return str(r.text)
-
 # ===== ЗАПУСК =====
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 3000)))

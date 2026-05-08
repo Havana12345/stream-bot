@@ -181,6 +181,38 @@ def home():
 threading.Thread(target=check_stream, daemon=True).start()
 
 
+# ===== ТЕСТ CUSTOM EMOJI =====
+@app.route("/test")
+def test():
+
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+
+    text = "X M1ss_Sunshine уже в эфире X"
+
+    data = {
+        "chat_id": CHAT_ID,
+        "text": text,
+        "entities": [
+            {
+                "offset": 0,
+                "length": 1,
+                "type": "custom_emoji",
+                "custom_emoji_id": "5348299705992374531"
+            },
+            {
+                "offset": 31,
+                "length": 1,
+                "type": "custom_emoji",
+                "custom_emoji_id": "5348299705992374531"
+            }
+        ]
+    }
+
+    requests.post(url, json=data)
+
+    return "test sent"
+
+
 # ===== ЗАПУСК =====
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 3000)))

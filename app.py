@@ -14,10 +14,10 @@ CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 STREAMER_LOGIN = os.getenv("STREAMER_LOGIN")
 
-# ===== КАРТИНКА (ТУТ МОЖНО МЕНЯТЬ) =====
+# ===== КАРТИНКА ДЛЯ НАЧАЛА СТРИМА =====
 STREAM_IMAGE = "https://i.pinimg.com/736x/4f/6f/c8/4f6fc8447d21181bf320a551f64b4fd6.jpg"
 
-# ===== STATE =====
+# ===== СОСТОЯНИЕ =====
 is_live = False
 stream_start_time = None
 max_viewers = 0
@@ -25,31 +25,40 @@ access_token = None
 
 
 # ===== TELEGRAM MESSAGE =====
-def send_message(text, image=None):
+def send_message(text, image=None, button=False):
 
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto" if image else f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-
-    data = {
-        "chat_id": CHAT_ID
-    }
-
-    # кнопка Twitch
-    keyboard = {
-        "inline_keyboard": [[
-            {
-                "text": "🎮 Смотреть стрим",
-                "url": f"https://twitch.tv/{STREAMER_LOGIN}"
-            }
-        ]]
-    }
-
-    data["reply_markup"] = keyboard
-
+    # ===== СООБЩЕНИЕ С КАРТИНКОЙ =====
     if image:
-        data["photo"] = image
-        data["caption"] = text
+        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
+
+        data = {
+            "chat_id": CHAT_ID,
+            "photo": image,
+            "caption": text,
+            "parse_mode": "HTML"
+        }
+
+    # ===== ОБЫЧНОЕ ТЕКСТОВОЕ СООБЩЕНИЕ =====
     else:
-        data["text"] = text
+        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+
+        data = {
+            "chat_id": CHAT_ID,
+            "text": text,
+            "parse_mode": "HTML"
+        }
+
+    # ===== КНОПКА TWITCH =====
+    if button:
+        data["reply_markup"] = {
+            "inline_keyboard": [[
+                {
+                    "text": "🎮 Смотреть стрим",
+                    "url": f"https://twitch.tv/{STREAMER_LOGIN}",
+                    "style": "primary"
+                }
+            ]]
+        }
 
     requests.post(url, json=data)
 
@@ -70,12 +79,13 @@ def get_token():
     access_token = r.json().get("access_token")
 
 
-# ===== CHECK STREAM =====
+# ===== ПРОВЕРКА СТРИМА =====
 def check_stream():
     global is_live, stream_start_time, max_viewers, access_token
 
     while True:
         try:
+
             if not access_token:
                 get_token()
 
@@ -89,36 +99,48 @@ def check_stream():
             r = requests.get(url, headers=headers).json()
             data = r.get("data", [])
 
-            # ===== STREAM ONLINE =====
+            # ===== СТРИМ НАЧАЛСЯ =====
             if data:
+
                 viewers = data[0]["viewer_count"]
 
                 if viewers > max_viewers:
                     max_viewers = viewers
 
                 if not is_live:
+
                     is_live = True
                     stream_start_time = datetime.utcnow()
 
                     send_message(
-                        "🔴 Стрим начался! Залетай 💜",
-                        image=STREAM_IMAGE
+                        "🔴 <b>M1ss_Sunshine уже в эфире!</b>\n\n"
+                        "💜 Залетай на стрим и приятного просмотра ✨",
+                        image=STREAM_IMAGE,
+                        button=True
                     )
 
-            # ===== STREAM OFFLINE =====
+            # ===== СТРИМ ЗАКОНЧИЛСЯ =====
             else:
+
                 if is_live:
+
                     is_live = False
 
                     if stream_start_time:
+
                         duration = datetime.utcnow() - stream_start_time
-                        minutes = duration.seconds // 60
+
+                        total_minutes = duration.seconds // 60
+                        hours = total_minutes // 60
+                        minutes = total_minutes % 60
+
+                        duration_text = f"{hours}:{minutes:02}"
 
                         send_message(
-                            f"🎉 M1ss_Sunshine - закончил стрим. 🎉\n\n"
-                            f"🕒 Стрим продлился: {minutes} мин.\n"
-                            f"👥 Зрителей: {max_viewers}",
-                            image=STREAM_IMAGE
+                            f"🎉 <b>M1ss_Sunshine закончил стрим</b>\n\n"
+                            f"🕒 Длительность стрима: <b>{duration_text}</b>\n"
+                            f"👥 Пик зрителей: <b>{max_viewers}</b>\n\n"
+                            f"💜 Спасибо всем, кто был на стриме"
                         )
 
                     max_viewers = 0
@@ -126,6 +148,7 @@ def check_stream():
         except Exception as e:
             print("error:", e)
 
+        # ===== ПРОВЕРКА КАЖДУЮ МИНУТУ =====
         time.sleep(60)
 
 
@@ -135,10 +158,10 @@ def home():
     return "Bot is running"
 
 
-# ===== BACKGROUND THREAD =====
+# ===== ФОНОВЫЙ ПОТОК =====
 threading.Thread(target=check_stream, daemon=True).start()
 
 
-# ===== RUN =====
+# ===== ЗАПУСК =====
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 3000)))

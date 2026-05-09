@@ -181,20 +181,6 @@ def home():
 threading.Thread(target=check_stream, daemon=True).start()
 
 
-@app.route("/test")
-def test():
-
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-
-    data = {
-        "chat_id": CHAT_ID,
-        "text": "ТЕСТ БЕЗ CUSTOM EMOJI"
-    }
-
-    r = requests.post(url, json=data)
-
-    return str(r.text)
-
 
 # ===== ЗАПУСК =====
 if __name__ == "__main__":

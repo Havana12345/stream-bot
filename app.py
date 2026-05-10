@@ -15,7 +15,7 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 STREAMER_LOGIN = os.getenv("STREAMER_LOGIN")
 
 # ===== КАРТИНКА ДЛЯ СТАРТА =====
-STREAM_IMAGE = "https://chatgpt.com/backend-api/estuary/content?id=file_00000000561c720abba40ec3dfcddc0e&ts=494003&p=fs&cid=1&sig=d2ea7b5b9b9656d5f8dc95726a701c6b4f70df42f635d446ed292177a4cb5cfc&v=0"
+STREAM_IMAGE = "https://i.pinimg.com/736x/71/8f/71/718f71618efd1218d2c8b1d1f8ac174a.jpg"
 
 # ===== STATE =====
 is_live = False

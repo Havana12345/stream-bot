@@ -51,22 +51,23 @@ def send_message(text, image=None, button=False):
         }
 
     # ===== КНОПКА =====
-    if button:
+# ===== КНОПКА =====
+if button:
 
-        data["reply_markup"] = {
-            "inline_keyboard": [[
+    data["reply_markup"] = {
+        "inline_keyboard": [
+            [
                 {
-    "text": "Смотреть стрим",
-    "url": f"https://twitch.tv/{STREAMER_LOGIN}",
-    "style": "primary",
-    "icon_custom_emoji_id": "5348110581402461749"
-}
-            ]]
-        }
-
-    requests.post(url, json=data)
-
-
+                    "text": "💜 Twitch",
+                    "url": f"https://twitch.tv/{STREAMER_LOGIN}"
+                },
+                {
+                    "text": "💙 VK Live",
+                    "url": "https://live.vkvideo.ru/m1ss_sunshine"
+                }
+            ]
+        ]
+    }
 # ===== TWITCH TOKEN =====
 def get_token():
 

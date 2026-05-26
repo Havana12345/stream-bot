@@ -50,24 +50,28 @@ def send_message(text, image=None, button=False):
             "parse_mode": "HTML"
         }
 
-    # ===== КНОПКА =====
-# ===== КНОПКА =====
-if button:
+    # ===== INLINE КНОПКИ =====
+    if button:
 
-    data["reply_markup"] = {
-        "inline_keyboard": [
-            [
-                {
-                    "text": "💜 Twitch",
-                    "url": f"https://twitch.tv/{STREAMER_LOGIN}"
-                },
-                {
-                    "text": "💙 VK Live",
-                    "url": "https://live.vkvideo.ru/m1ss_sunshine"
-                }
+        data["reply_markup"] = {
+            "inline_keyboard": [
+                [
+                    {
+                        "text": "💜 Twitch",
+                        "url": f"https://twitch.tv/{STREAMER_LOGIN}"
+                    },
+                    {
+                        "text": "💙 VK Live",
+                        "url": "https://live.vkvideo.ru/m1ss_sunshine"
+                    }
+                ]
             ]
-        ]
-    }
+        }
+
+    # ===== ОТПРАВКА =====
+    requests.post(url, json=data)
+
+
 # ===== TWITCH TOKEN =====
 def get_token():
 
@@ -123,11 +127,8 @@ def check_stream():
                     stream_start_time = datetime.utcnow()
 
                     send_message(
-                        '<tg-emoji emoji-id="5348299705992374531">⚡️</tg-emoji> '
-                        '<b>M1ss_Sunshine мурчит в эфире</b> '
-                        '<tg-emoji emoji-id="5348299705992374531">⚡️</tg-emoji>\n\n'
-                        'Залетай на стрим и приятного просмотра '
-                        '<tg-emoji emoji-id="5348110581402461749">💜</tg-emoji>',
+                        '⚡️ <b>M1ss_Sunshine мурчит в эфире</b> ⚡️\n\n'
+                        'Залетай на стрим и приятного просмотра 💜',
                         image=STREAM_IMAGE,
                         button=True
                     )
@@ -150,16 +151,10 @@ def check_stream():
                         duration_text = f"{hours}:{minutes:02}"
 
                         send_message(
-                            '<tg-emoji emoji-id="5348587443031403178">⭐️</tg-emoji> '
-                            '<b>M1ss_Sunshine закончила стрим</b> '
-                            '<tg-emoji emoji-id="5348587443031403178">⭐️</tg-emoji>\n\n'
-                            '<tg-emoji emoji-id="5345840253099864159">⌛️</tg-emoji> '
-                            f'Длительность стрима: <b>{duration_text}</b>\n'
-                            '<tg-emoji emoji-id="5345913576781539831">🐱</tg-emoji> '
-                            f'Зрители: <b>{max_viewers}</b>\n\n'
-                            '<tg-emoji emoji-id="5348118424012745224">💜</tg-emoji> '
-                            'Спасибо всем, кто был на стриме '
-                            '<tg-emoji emoji-id="5348118424012745224">💜</tg-emoji>'
+                            '⭐️ <b>M1ss_Sunshine закончила стрим</b> ⭐️\n\n'
+                            f'⌛️ Длительность стрима: <b>{duration_text}</b>\n'
+                            f'🐱 Зрители: <b>{max_viewers}</b>\n\n'
+                            '💜 Спасибо всем, кто был на стриме 💜'
                         )
 
                     max_viewers = 0
@@ -168,7 +163,7 @@ def check_stream():
 
             print("error:", e)
 
-        # ===== ПРОВЕРКА КАЖДУЮ МИНУТУ =====
+        # ===== ПРОВЕРКА КАЖДЫЕ 15 СЕКУНД =====
         time.sleep(15)
 
 
@@ -180,7 +175,6 @@ def home():
 
 # ===== ФОНОВЫЙ ПОТОК =====
 threading.Thread(target=check_stream, daemon=True).start()
-
 
 
 # ===== ЗАПУСК =====
